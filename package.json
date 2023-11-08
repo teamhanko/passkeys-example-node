@@ -1,0 +1,14 @@
+{
+	"name": "hanko-passkey-example",
+	"module": "index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/cookie-parser": "^1.4.6",
+		"@types/express": "^4.17.21"
+	},
+	"dependencies": {
+		"cookie-parser": "^1.4.6",
+		"express": "^4.18.2",
+		"jwt-decode": "^4.0.0"
+	}
+}
