@@ -1,4 +1,4 @@
-# hanko-passkey-example
+# Hanko Passkey API: Node.js Demo
 
 ## Setup
 

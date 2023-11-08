@@ -119,14 +119,6 @@ app.post("/passkey/start-registration", async (req, res) => {
 
 	console.log("Passkey registration started:", creationOptions);
 
-	creationOptions.publicKey.authenticatorSelection = {
-		requireResidentKey: false,
-		userVerification: "preferred",
-		residentKey: "preferred",
-	};
-
-	creationOptions.publicKey.extensions = { credProps: true };
-
 	// creationOptions is an object that can directly be passed to create(...)
 	// (the function that opens the "create passkey" dialog) on the frontend.
 	res.json(creationOptions);
@@ -163,6 +155,8 @@ app.post("/passkey/start-login", async (req, res) => {
 		headers,
 	}).then((res) => res.json());
 
+	console.log("Passkey login started:", loginOptions);
+
 	// loginOptions is an object that can directly be passed to get()
 	// (the function that opens the "select passkey" dialog)
 	// in the frontend.
@@ -183,6 +177,8 @@ app.post("/passkey/finalize-login", async (req, res) => {
 	// - "cred" claim is the credential_id (the ID of the credential the user chose to log in with)
 	// - "aud" always is the ID of the relying party (your app)
 	res.cookie("authuid", jwt.sub);
+
+	console.log("Done: user logged in with passkey!", data);
 
 	res.redirect("/");
 });
