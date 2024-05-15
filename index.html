@@ -29,6 +29,22 @@
 				border-radius: 0.25rem;
 				font-weight: 500;
 			}
+
+			#mfa {
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				text-align: center;
+				border-radius: 8px;
+				padding: 4rem;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background: white;
+				box-shadow: 0 1rem 4rem rgba(0, 0, 0, 0.15);
+				gap: 2rem;
+			}
 		</style>
 	</head>
 	<body>
@@ -46,6 +62,13 @@
 
 		<button id="passkeyRegisterBtn"></button>
 		<button id="passkeyLoginBtn">Login with passkey</button>
+		<button id="mfaEnableBtn">Enable two-factor</button>
+
+		<div id="mfa" style="display: none">
+			<div>Authenticated successfully, but your account has two-factor authentication enabled.</div>
+			<div>Please choose the credential you used when first enabling two-factor authentication.</div>
+			<button id="mfaLoginBtn">Login with two-factor</button>
+		</div>
 
 		<script type="module">
 			import {
@@ -57,10 +80,23 @@
 			const loginBtn = document.getElementById("passkeyLoginBtn");
 			const logoutBtn = document.getElementById("logoutBtn");
 			const form = document.getElementById("userpassLoginForm");
+			const mfa = document.getElementById("mfa");
+			const mfaEnableButton = document.getElementById("mfaEnableBtn");
+			const mfaLoginButton = document.getElementById("mfaLoginBtn");
+
 			const me = await getLoggedInProfile();
+
+			const isMfaRequired = new URLSearchParams(window.location.search).get("mfa") === "required";
+			if (isMfaRequired) {
+				mfa.style.display = "flex";
+			}
 
 			registerBtn.addEventListener("click", () => registerPasskey().then(() => window.location.reload()));
 			loginBtn.addEventListener("click", () => loginWithPasskey().then(() => window.location.reload()));
+			mfaEnableButton.addEventListener("click", () => enableMfa().then(() => window.location.reload()));
+			mfaLoginButton.addEventListener("click", () =>
+				loginWithMfaCredential().then(() => (window.location.href = "/?mfa=passed"))
+			);
 
 			async function getLoggedInProfile() {
 				try {
@@ -73,6 +109,7 @@
 				} catch (err) {
 					registerBtn.outerHTML = '<p style="color:red">Not logged in</p>';
 					logoutBtn.outerHTML = "";
+					mfaEnableButton.outerHTML = "";
 				}
 			}
 
@@ -112,6 +149,36 @@
 				// The returned `credential` object needs to be sent back to the
 				// Passkey API as-is.
 				return fetch("/passkey/finalize-login", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(credential),
+				});
+			}
+
+			async function enableMfa() {
+				// This is much like the registration process
+				const creationOptions = await fetch("/mfa/enable", {
+					method: "POST",
+				}).then((res) => res.json());
+
+				const credential = await create(creationOptions);
+
+				return fetch("/mfa/finalize-enable", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(credential),
+				});
+			}
+
+			async function loginWithMfaCredential() {
+				// This is much like the login process
+				const loginOptions = await fetch("/mfa/login", {
+					method: "POST",
+				}).then((res) => res.json());
+
+				const credential = await get(loginOptions);
+
+				return fetch("/mfa/finalize-login", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(credential),

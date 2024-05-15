@@ -6,7 +6,7 @@
 2. Run:
 
 ```
-PASSKEY_TENANT_ID=<your tenant id> PASSKEY_SECRET_API_KEY=<your secret api key> node ./index.js
+PASSKEYS_TENANT_ID=<your tenant id> PASSKEYS_SECRET_API_KEY=<your secret api key> node ./index.js
 ```
 
 Then go to [localhost:3000](http://localhost:3000) and try it out!

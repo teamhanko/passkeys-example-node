@@ -6,6 +6,7 @@ interface User {
 	username: string;
 	email: string;
 	password: string;
+	mfaEnabled: boolean;
 }
 
 namespace Express {
